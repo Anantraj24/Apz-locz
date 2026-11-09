@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Apz Locz"
 include(":app")
+

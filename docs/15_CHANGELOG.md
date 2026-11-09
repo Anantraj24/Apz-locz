@@ -1,6 +1,14 @@
 # 15 — Changelog
 
 ## [Unreleased]
+- Phase 2: Credential & Storage Core implementation.
+  - Implemented `SettingsRepository` with Jetpack DataStore Preferences and keys matching `docs/06`.
+  - Implemented `CredentialValidator` verifying PIN (4–8 digits), password (4–32 chars), and pattern (min 4 dots).
+  - Implemented `Pbkdf2Helper` (PBKDF2WithHmacSHA256, random salt) and `CryptoEngine` (AES-GCM encryption with Android Keystore key alias `apz_locz_cred_key`).
+  - Implemented `CredentialManager` for setting, constant-time verification, changing, and removing credentials with zero plaintext persistence.
+  - Implemented `LockoutManager` enforcing 5 wrong attempts → 30-second lockout timer with countdown and clock injection for testability.
+  - Implemented manual dependency injection via `AppContainer` in `ApzLoczApp`.
+  - Added unit test suites (`CredentialValidatorTest`, `CredentialManagerTest`, `LockoutManagerTest`) covering all validation, lockout, expiry, and credential lifecycle rules.
 - Phase 1: Foundation & One UI Design System implementation.
   - Initialized Gradle Kotlin DSL project with Version Catalog (`gradle/libs.versions.toml`).
   - Added One UI design system tokens (colors, typography, shape, spacing, motion).

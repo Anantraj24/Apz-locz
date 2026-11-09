@@ -41,3 +41,4 @@ object OneUiMotion {
         stiffness = 500f
     )
 }
+

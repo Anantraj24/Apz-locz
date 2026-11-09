@@ -38,3 +38,4 @@ jobs:
         else
           echo "Verified: Manifest contains zero network permissions."
         fi
+

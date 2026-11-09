@@ -45,3 +45,4 @@ data class OneUiColors(
     val warning: Color,
     val isDark: Boolean
 )
+
