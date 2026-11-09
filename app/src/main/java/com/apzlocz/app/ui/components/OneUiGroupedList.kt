@@ -38,12 +38,12 @@ fun OneUiGroupedList(
             .clip(shape)
             .background(color = backgroundColor, shape = shape)
     ) {
-        val scope = OneUiGroupedListScopeImpl()
+        val scope = OneUiGroupedListScope()
         scope.content()
     }
 }
 
-interface OneUiGroupedListScope {
+class OneUiGroupedListScope {
     @Composable
     fun Item(
         title: String,
@@ -53,19 +53,6 @@ interface OneUiGroupedListScope {
         trailing: (@Composable () -> Unit)? = null,
         onClick: (() -> Unit)? = null,
         showDivider: Boolean = true
-    )
-}
-
-private class OneUiGroupedListScopeImpl : OneUiGroupedListScope {
-    @Composable
-    override fun Item(
-        title: String,
-        modifier: Modifier,
-        subtitle: String?,
-        leading: (@Composable () -> Unit)?,
-        trailing: (@Composable () -> Unit)?,
-        onClick: (() -> Unit)?,
-        showDivider: Boolean
     ) {
         OneUiListItem(
             title = title,

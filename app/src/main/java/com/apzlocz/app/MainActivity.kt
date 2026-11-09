@@ -1,9 +1,12 @@
 package com.apzlocz.app
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,18 +14,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.apzlocz.app.service.AppWatcherService
 import com.apzlocz.app.ui.components.CollapsingHeaderScaffold
 import com.apzlocz.app.ui.components.OneUiCard
 import com.apzlocz.app.ui.components.OneUiGroupedList
@@ -50,10 +54,21 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
+            val isConnected by AppWatcherService.isConnected.collectAsState()
+            val lastPackage by AppWatcherService.lastDetectedPackage.collectAsState()
+
             ApzLoczTheme(themeMode = themeMode) {
                 DesignGalleryScreen(
                     currentThemeMode = themeMode,
-                    onThemeModeChange = { themeMode = it }
+                    onThemeModeChange = { themeMode = it },
+                    isServiceConnected = isConnected,
+                    lastDetectedPackage = lastPackage,
+                    onOpenAccessibilitySettings = {
+                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        startActivity(intent)
+                    }
                 )
             }
         }
@@ -63,7 +78,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DesignGalleryScreen(
     currentThemeMode: ThemeMode,
-    onThemeModeChange: (ThemeMode) -> Unit
+    onThemeModeChange: (ThemeMode) -> Unit,
+    isServiceConnected: Boolean = false,
+    lastDetectedPackage: String? = null,
+    onOpenAccessibilitySettings: () -> Unit = {}
 ) {
     var switch1Checked by remember { mutableStateOf(true) }
     var switch2Checked by remember { mutableStateOf(false) }
@@ -76,6 +94,62 @@ fun DesignGalleryScreen(
         title = "Design Gallery",
         subtitle = "Samsung One UI Inspired Component Library"
     ) {
+        // Phase 3 — Foreground Detection Debug Card
+        item(key = "foreground_detection_debug") {
+            OneUiTitledCard(
+                title = "Foreground App Detection",
+                subtitle = "Event-driven AccessibilityService (Phase 3)"
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Service Status:",
+                            style = OneUiTheme.typography.body,
+                            color = OneUiTheme.colors.onSurface
+                        )
+                        StatusBadge(
+                            text = if (isServiceConnected) "Active" else "Inactive",
+                            type = if (isServiceConnected) StatusBadgeType.SUCCESS else StatusBadgeType.WARNING
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = OneUiTheme.colors.surfaceVariant,
+                                shape = OneUiTheme.shapes.chip
+                            )
+                            .padding(12.dp)
+                    ) {
+                        Text(
+                            text = "Last Detected Package:",
+                            style = OneUiTheme.typography.caption,
+                            color = OneUiTheme.colors.onSurfaceMuted
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = lastDetectedPackage ?: "None (open another app to test)",
+                            style = OneUiTheme.typography.body,
+                            color = if (lastDetectedPackage != null) OneUiTheme.colors.accent else OneUiTheme.colors.onSurface
+                        )
+                    }
+
+                    PillButton(
+                        text = "Open Accessibility Settings",
+                        onClick = onOpenAccessibilitySettings,
+                        style = PillButtonStyle.PRIMARY,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         // 1. Theme Selector
         item(key = "theme_selector") {
             OneUiTitledCard(

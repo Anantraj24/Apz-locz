@@ -164,3 +164,4 @@ class CredentialManagerTest {
         assertFalse(settings.credentialIvBase64!!.contains(rawPin))
     }
 }
+

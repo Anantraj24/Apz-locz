@@ -78,3 +78,4 @@ class CredentialValidatorTest {
         assertTrue(CredentialValidator.validate(CredentialType.NONE, "none") is ValidationResult.Invalid)
     }
 }
+

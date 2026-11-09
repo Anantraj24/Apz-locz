@@ -105,3 +105,4 @@ class FakeSettingsRepository(
 
     fun getCurrentSettings(): AppSettings = _settings.value
 }
+

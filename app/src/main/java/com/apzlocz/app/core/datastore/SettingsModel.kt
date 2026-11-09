@@ -37,3 +37,4 @@ data class AppSettings(
     val onboardingDone: Boolean = false,
     val schemaVersion: Int = 1
 )
+

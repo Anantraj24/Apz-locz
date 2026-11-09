@@ -25,3 +25,4 @@ object SettingsKeys {
     val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
     val SCHEMA_VERSION = intPreferencesKey("schema_version")
 }
+

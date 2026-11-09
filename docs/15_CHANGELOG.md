@@ -1,6 +1,12 @@
 # 15 — Changelog
 
 ## [Unreleased]
+- Phase 3: Foreground App Detection implementation.
+  - Implemented `AppWatcherService` (`AccessibilityService`) listening for `TYPE_WINDOW_STATE_CHANGED` events.
+  - Added `ForegroundAppFilter` with 200ms debounce and filtering for own package, system UI, launchers, and IMEs.
+  - Configured `accessibility_config.xml` requesting zero unnecessary capabilities (`canRetrieveWindowContent="false"`).
+  - Added temporary Foreground App Detection status card in `MainActivity` with live service state and quick shortcut to accessibility settings.
+  - Added unit test suite `ForegroundAppFilterTest` verifying package filtering and debounce mechanics.
 - Phase 2: Credential & Storage Core implementation.
   - Implemented `SettingsRepository` with Jetpack DataStore Preferences and keys matching `docs/06`.
   - Implemented `CredentialValidator` verifying PIN (4–8 digits), password (4–32 chars), and pattern (min 4 dots).

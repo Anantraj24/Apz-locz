@@ -4,6 +4,7 @@
 /.idea/
 .idea/
 .vscode/
+.kotlin/
 .DS_Store
 build/
 */build/
