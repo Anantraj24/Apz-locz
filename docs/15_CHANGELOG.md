@@ -1,6 +1,14 @@
 # 15 — Changelog
 
 ## [Unreleased]
+- Phase 5: Lock Screen & Credential Entry implementation.
+  - Implemented `LockActivity` with `excludeFromRecents="true"`, empty `taskAffinity=""`, `launchMode="singleTask"`, and `noHistory="true"`.
+  - Added home-screen navigation on Back press to prevent bypassing locked apps.
+  - Built credential input composables: `PinInput` (dots and keypad), `PasswordInput` (secure text field with show/hide toggle), and `PatternInput` (3x3 dot touch drag grid with normalized dot sequences).
+  - Built `LockScreen` showing target app identity, error state with spring shake animation, and lockout timer countdown.
+  - Wired `AppWatcherService` to launch `LockActivity` whenever a locked application transitions into foreground.
+  - Built `SettingsScreen` and `CredentialSettingsScreen` allowing users to configure PIN, Password, or Pattern credentials, change credentials, remove credentials, and switch theme modes.
+  - Added unit test suite `LockScreenLogicTest` verifying PIN, password, and pattern unlock flows, 5-wrong lockout behavior, and credential modification.
 - Phase 4: App List & Lock Selection implementation.
   - Implemented `AppInfo`, `RawAppInfo`, and `AppScanner` abstraction with `PackageManagerAppScanner` querying launcher intents via Android 11+ `<queries>` (zero `QUERY_ALL_PACKAGES` permission).
   - Implemented lightweight in-memory `IconCache` using `LruCache` for asynchronous icon loading with fallback placeholders, strictly avoiding external image libraries (no Coil/Glide).

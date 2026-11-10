@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import com.apzlocz.app.ApzLoczApp
+import com.apzlocz.app.lock.LockActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Event-driven AccessibilityService for detecting foreground package transitions.
- * Adheres strictly to docs/05_SYSTEM_ARCHITECTURE.md and docs/09 Phases 3 & 4.
+ * Adheres strictly to docs/05_SYSTEM_ARCHITECTURE.md and docs/09 Phases 3, 4, 5.
  *
  * Runs without polling, without background loops, and requests no capabilities beyond
  * window state observation.
@@ -95,6 +96,17 @@ class AppWatcherService : AccessibilityService() {
 
         _lastDetectedPackage.value = currentPackage
         Log.d(TAG, "Locked app detected in foreground: $currentPackage at $now")
+
+        // Phase 5: Launch LockActivity covering the locked application
+        try {
+            val lockIntent = Intent(this, LockActivity::class.java).apply {
+                putExtra(LockActivity.EXTRA_PACKAGE_NAME, currentPackage)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+            startActivity(lockIntent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to launch LockActivity: ${e.message}", e)
+        }
     }
 
     override fun onInterrupt() {

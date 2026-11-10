@@ -27,6 +27,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".lock.LockActivity"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:exported="false"
+            android:theme="@style/Theme.ApzLocz" />
+
         <service
             android:name=".service.AppWatcherService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
