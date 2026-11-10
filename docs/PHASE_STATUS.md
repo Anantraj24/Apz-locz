@@ -1,14 +1,14 @@
 # PHASE STATUS
 
-Current phase: **Phase 3 — Foreground App Detection** · Last approved phase: **Phase 2 — Credential & Storage Core**
+Current phase: **Phase 5 — Lock Screen & Credential Entry** · Last approved phase: **Phase 4 — App List & Lock Selection**
 
 | # | Phase | Status | Approved by owner |
 |---|---|---|---|
 | 1 | Foundation & Design System | Approved | Yes |
 | 2 | Credential & Storage Core | Approved | Yes |
-| 3 | Foreground App Detection | Awaiting approval | Pending |
-| 4 | App List & Lock Selection | Not started | No |
-| 5 | Lock Screen & Credential Entry | Not started | No |
+| 3 | Foreground App Detection | Approved | Yes |
+| 4 | App List & Lock Selection | Approved | Yes |
+| 5 | Lock Screen & Credential Entry | In progress | No |
 | 6 | Biometric Unlock | Not started | No |
 | 7 | Relock Timing | Not started | No |
 | 8 | Hide Notifications | Not started | No |

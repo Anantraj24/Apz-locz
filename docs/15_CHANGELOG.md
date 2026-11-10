@@ -1,6 +1,14 @@
 # 15 — Changelog
 
 ## [Unreleased]
+- Phase 4: App List & Lock Selection implementation.
+  - Implemented `AppInfo`, `RawAppInfo`, and `AppScanner` abstraction with `PackageManagerAppScanner` querying launcher intents via Android 11+ `<queries>` (zero `QUERY_ALL_PACKAGES` permission).
+  - Implemented lightweight in-memory `IconCache` using `LruCache` for asynchronous icon loading with fallback placeholders, strictly avoiding external image libraries (no Coil/Glide).
+  - Implemented `InstalledAppsRepository` (`DefaultInstalledAppsRepository`) combining installed apps with live DataStore `lockedPackages` and `showSystemApps` preferences.
+  - Implemented `AppsViewModel` with reactive unidirectional data flow handling search filtering, All/Locked tabs, counts, and toggle mutations.
+  - Built `AppsScreen` featuring One UI collapsing header, rounded search pill, tab counters, include system apps toggle card, 48dp app squircle icon rows, `OneUiSwitch`, and empty/loading states.
+  - Updated `AppWatcherService` to dynamically observe `lockedPackagesFlow` without service restart, reacting strictly to user-locked apps in the foreground.
+  - Added unit test suite `InstalledAppsRepositoryTest` verifying default user app filtering, locked system app visibility, search and tab filtering, and lock toggles.
 - Phase 3: Foreground App Detection implementation.
   - Implemented `AppWatcherService` (`AccessibilityService`) listening for `TYPE_WINDOW_STATE_CHANGED` events.
   - Added `ForegroundAppFilter` with 200ms debounce and filtering for own package, system UI, launchers, and IMEs.

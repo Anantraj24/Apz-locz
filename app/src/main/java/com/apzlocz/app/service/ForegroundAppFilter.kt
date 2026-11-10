@@ -53,3 +53,4 @@ class ForegroundAppFilter(
         lastEventTimeMs = 0L
     }
 }
+

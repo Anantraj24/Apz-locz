@@ -4,6 +4,10 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.apzlocz.app.core.apps.DefaultInstalledAppsRepository
+import com.apzlocz.app.core.apps.IconCache
+import com.apzlocz.app.core.apps.InstalledAppsRepository
+import com.apzlocz.app.core.apps.PackageManagerAppScanner
 import com.apzlocz.app.core.datastore.DataStoreSettingsRepository
 import com.apzlocz.app.core.datastore.SettingsRepository
 import com.apzlocz.app.core.security.AndroidKeyStoreCryptoEngine
@@ -20,6 +24,8 @@ interface AppContainer {
     val cryptoEngine: CryptoEngine
     val credentialManager: CredentialManager
     val lockoutManager: LockoutManager
+    val iconCache: IconCache
+    val installedAppsRepository: InstalledAppsRepository
 }
 
 class DefaultAppContainer(
@@ -46,5 +52,15 @@ class DefaultAppContainer(
             settingsRepository = settingsRepository
         )
     }
-}
 
+    override val iconCache: IconCache by lazy {
+        IconCache(maxEntries = 150)
+    }
+
+    override val installedAppsRepository: InstalledAppsRepository by lazy {
+        DefaultInstalledAppsRepository(
+            appScanner = PackageManagerAppScanner(context),
+            settingsRepository = settingsRepository
+        )
+    }
+}

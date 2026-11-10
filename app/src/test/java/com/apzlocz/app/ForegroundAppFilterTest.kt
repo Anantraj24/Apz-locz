@@ -82,3 +82,4 @@ class ForegroundAppFilterTest {
         assertFalse(filter.shouldDebounce("com.instagram.android", nowMs = 1050L))
     }
 }
+
