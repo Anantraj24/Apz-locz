@@ -21,6 +21,8 @@ import com.apzlocz.app.core.apps.IconCache
 import com.apzlocz.app.core.datastore.CredentialType
 import com.apzlocz.app.core.security.LockoutState
 import com.apzlocz.app.ui.apps.AppIconView
+import com.apzlocz.app.ui.components.PillButton
+import com.apzlocz.app.ui.components.PillButtonStyle
 import com.apzlocz.app.ui.theme.OneUiTheme
 
 @Composable
@@ -30,8 +32,10 @@ fun LockScreen(
     credentialType: CredentialType,
     lockoutState: LockoutState,
     isError: Boolean,
+    isBiometricAvailable: Boolean,
     iconCache: IconCache,
     onCredentialSubmit: (String) -> Unit,
+    onBiometricTrigger: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -86,7 +90,7 @@ fun LockScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Middle Section: Active Credential Input
             Box(
@@ -101,22 +105,49 @@ fun LockScreen(
                             pinLength = 4,
                             onPinComplete = onCredentialSubmit,
                             isError = isError,
-                            enabled = inputEnabled
+                            enabled = inputEnabled,
+                            onBiometricClick = if (isBiometricAvailable) onBiometricTrigger else null
                         )
                     }
                     CredentialType.PASSWORD -> {
-                        PasswordInput(
-                            onPasswordSubmit = onCredentialSubmit,
-                            isError = isError,
-                            enabled = inputEnabled
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            PasswordInput(
+                                onPasswordSubmit = onCredentialSubmit,
+                                isError = isError,
+                                enabled = inputEnabled
+                            )
+                            if (isBiometricAvailable && onBiometricTrigger != null) {
+                                PillButton(
+                                    text = "Unlock with Biometrics",
+                                    style = PillButtonStyle.TONAL,
+                                    enabled = inputEnabled,
+                                    onClick = onBiometricTrigger
+                                )
+                            }
+                        }
                     }
                     CredentialType.PATTERN -> {
-                        PatternInput(
-                            onPatternComplete = onCredentialSubmit,
-                            isError = isError,
-                            enabled = inputEnabled
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            PatternInput(
+                                onPatternComplete = onCredentialSubmit,
+                                isError = isError,
+                                enabled = inputEnabled
+                            )
+                            if (isBiometricAvailable && onBiometricTrigger != null) {
+                                PillButton(
+                                    text = "Unlock with Biometrics",
+                                    style = PillButtonStyle.TONAL,
+                                    enabled = inputEnabled,
+                                    onClick = onBiometricTrigger
+                                )
+                            }
+                        }
                     }
                     CredentialType.NONE -> {
                         Text(

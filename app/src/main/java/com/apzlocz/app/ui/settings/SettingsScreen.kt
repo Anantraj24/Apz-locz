@@ -22,6 +22,7 @@ import com.apzlocz.app.core.datastore.CredentialType
 import com.apzlocz.app.ui.components.CollapsingHeaderScaffold
 import com.apzlocz.app.ui.components.OneUiCard
 import com.apzlocz.app.ui.components.OneUiGroupedList
+import com.apzlocz.app.ui.components.OneUiSwitch
 import com.apzlocz.app.ui.theme.OneUiTheme
 import com.apzlocz.app.ui.theme.ThemeMode
 
@@ -30,7 +31,10 @@ fun SettingsScreen(
     currentThemeMode: ThemeMode,
     credentialType: CredentialType,
     isCredentialSet: Boolean,
+    isBiometricEnabled: Boolean,
+    isBiometricSupported: Boolean,
     onNavigateToCredentialSetup: () -> Unit,
+    onBiometricToggle: (Boolean) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -51,7 +55,47 @@ fun SettingsScreen(
             }
         }
 
-        // Group 2: Appearance & Theme
+        // Group 2: Biometrics (Phase 6)
+        item(key = "section_biometrics") {
+            OneUiCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 6.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Biometric Unlock",
+                            style = OneUiTheme.typography.body.copy(fontWeight = FontWeight.Medium),
+                            color = OneUiTheme.colors.onSurface
+                        )
+                        Text(
+                            text = if (isBiometricSupported) {
+                                "Use fingerprint or face unlock to open locked apps"
+                            } else {
+                                "Biometrics not enrolled or supported on this device"
+                            },
+                            style = OneUiTheme.typography.caption,
+                            color = OneUiTheme.colors.onSurfaceMuted
+                        )
+                    }
+
+                    OneUiSwitch(
+                        checked = isBiometricEnabled && isBiometricSupported,
+                        onCheckedChange = onBiometricToggle,
+                        enabled = isBiometricSupported && isCredentialSet
+                    )
+                }
+            }
+        }
+
+        // Group 3: Appearance & Theme
         item(key = "section_appearance") {
             OneUiCard(
                 modifier = Modifier
@@ -102,7 +146,7 @@ fun SettingsScreen(
             }
         }
 
-        // Group 3: About
+        // Group 4: About
         item(key = "section_about") {
             OneUiGroupedList(modifier = Modifier.padding(horizontal = 24.dp, vertical = 6.dp)) {
                 Item(

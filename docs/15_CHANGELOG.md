@@ -1,6 +1,13 @@
 # 15 — Changelog
 
 ## [Unreleased]
+- Phase 6: Biometric Unlock implementation.
+  - Implemented `BiometricHelper` utilizing `androidx.biometric:biometric:1.1.0` with `BIOMETRIC_STRONG or BIOMETRIC_WEAK` supporting both fingerprint sensors and system face unlock (including Samsung Galaxy S25 FE).
+  - Configured prompt with "Use credential" fallback and zero `DEVICE_CREDENTIAL` permission or storage of biometric data.
+  - Updated `LockActivity` (inheriting `FragmentActivity`) to auto-trigger the biometric prompt upon launch when enabled.
+  - Added biometric re-trigger action key to the PIN keypad and unlock button for password/pattern inputs.
+  - Added Biometric Unlock toggle to `SettingsScreen` reflecting device hardware availability and enrollment status.
+  - Added unit test suite `BiometricSettingsTest` testing setting persistence and status enum integrity.
 - Phase 5: Lock Screen & Credential Entry implementation.
   - Implemented `LockActivity` with `excludeFromRecents="true"`, empty `taskAffinity=""`, `launchMode="singleTask"`, and `noHistory="true"`.
   - Added home-screen navigation on Back press to prevent bypassing locked apps.

@@ -2,7 +2,6 @@ package com.apzlocz.app.lock
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.fragment.app.FragmentActivity
 import com.apzlocz.app.ApzLoczApp
 import com.apzlocz.app.core.datastore.CredentialType
 import com.apzlocz.app.core.security.LockoutState
@@ -21,7 +21,7 @@ import com.apzlocz.app.ui.theme.ThemeMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class LockActivity : ComponentActivity() {
+class LockActivity : FragmentActivity() {
 
     companion object {
         const val EXTRA_PACKAGE_NAME = "extra_target_package"
@@ -65,6 +65,7 @@ class LockActivity : ComponentActivity() {
         setContent {
             val settings by settingsRepo.settingsFlow.collectAsState(initial = null)
             val themeMode = settings?.themeMode ?: ThemeMode.SYSTEM
+            val biometricEnabled = settings?.biometricEnabled ?: false
             val credentialType by credentialManager.credentialTypeFlow.collectAsState(initial = CredentialType.NONE)
 
             var lockoutState by remember {
@@ -73,7 +74,44 @@ class LockActivity : ComponentActivity() {
             var isError by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
 
-            // Refresh lockout state and run countdown timer if locked out
+            val isBiometricAvailable = remember {
+                BiometricHelper.isBiometricAvailable(this@LockActivity)
+            }
+
+            fun triggerBiometrics() {
+                if (isBiometricAvailable && !lockoutState.isLockedOut) {
+                    BiometricHelper.showBiometricPrompt(
+                        activity = this@LockActivity,
+                        title = "Unlock $targetAppName",
+                        subtitle = "Confirm fingerprint or face",
+                        negativeButtonText = "Use credential",
+                        onSuccess = {
+                            scope.launch {
+                                lockoutManager.recordSuccess()
+                                finish()
+                            }
+                        },
+                        onError = { _, _ ->
+                            // Fallback to manual credential entry without lockout
+                        },
+                        onFailed = {
+                            // Biometric failed once; user can retry or enter credential
+                        }
+                    )
+                }
+            }
+
+            // Auto-prompt biometrics once on launch if enabled and not locked out
+            LaunchedEffect(biometricEnabled) {
+                if (biometricEnabled && isBiometricAvailable) {
+                    val currentLockout = lockoutManager.getLockoutState()
+                    if (!currentLockout.isLockedOut) {
+                        triggerBiometrics()
+                    }
+                }
+            }
+
+            // Lockout countdown timer
             LaunchedEffect(Unit) {
                 while (true) {
                     val state = lockoutManager.getLockoutState()
@@ -93,6 +131,7 @@ class LockActivity : ComponentActivity() {
                     credentialType = credentialType,
                     lockoutState = lockoutState,
                     isError = isError,
+                    isBiometricAvailable = isBiometricAvailable && biometricEnabled,
                     iconCache = iconCache,
                     onCredentialSubmit = { secretInput ->
                         scope.launch {
@@ -100,7 +139,6 @@ class LockActivity : ComponentActivity() {
                             val isCorrect = credentialManager.verifyCredential(secretInput)
                             if (isCorrect) {
                                 lockoutManager.recordSuccess()
-                                // Close lock screen cleanly revealing the underlying app
                                 finish()
                             } else {
                                 val updatedLockout = lockoutManager.recordFailedAttempt()
@@ -108,6 +146,9 @@ class LockActivity : ComponentActivity() {
                                 isError = true
                             }
                         }
+                    },
+                    onBiometricTrigger = {
+                        triggerBiometrics()
                     }
                 )
             }

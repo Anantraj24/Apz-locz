@@ -76,6 +76,10 @@ class MainActivity : ComponentActivity() {
 
             val isCredentialSet by credentialManager.isCredentialSetFlow.collectAsState(initial = false)
             val credentialType by credentialManager.credentialTypeFlow.collectAsState(initial = CredentialType.NONE)
+            val biometricEnabled = settings?.biometricEnabled ?: false
+            val isBiometricSupported = remember {
+                com.apzlocz.app.lock.BiometricHelper.isBiometricAvailable(this@MainActivity)
+            }
 
             val isConnected by AppWatcherService.isConnected.collectAsState()
             val lastPackage by AppWatcherService.lastDetectedPackage.collectAsState()
@@ -128,7 +132,12 @@ class MainActivity : ComponentActivity() {
                                     currentThemeMode = themeMode,
                                     credentialType = credentialType,
                                     isCredentialSet = isCredentialSet,
+                                    isBiometricEnabled = biometricEnabled,
+                                    isBiometricSupported = isBiometricSupported,
                                     onNavigateToCredentialSetup = { activeScreen = "credential" },
+                                    onBiometricToggle = { enabled ->
+                                        scope.launch { settingsRepo.setBiometricEnabled(enabled) }
+                                    },
                                     onThemeModeChange = { newMode ->
                                         scope.launch { settingsRepo.setThemeMode(newMode) }
                                     },

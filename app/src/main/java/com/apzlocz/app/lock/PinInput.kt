@@ -28,11 +28,11 @@ fun PinInput(
     onPinComplete: (String) -> Unit,
     isError: Boolean = false,
     enabled: Boolean = true,
+    onBiometricClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var enteredPin by remember { mutableStateOf("") }
 
-    // When error occurs, clear input
     val currentIsError = isError
     if (currentIsError && enteredPin.isNotEmpty()) {
         enteredPin = ""
@@ -127,18 +127,31 @@ fun PinInput(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                // Left action key: Clear or placeholder
-                PinActionKey(
-                    onClick = { enteredPin = "" },
-                    contentDescriptionText = "Clear all",
-                    enabled = enabled && enteredPin.isNotEmpty()
-                ) {
-                    Text(
-                        text = "C",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = if (enteredPin.isNotEmpty() && enabled) OneUiTheme.colors.onSurface else OneUiTheme.colors.onSurfaceMuted.copy(alpha = 0.3f)
-                    )
+                // Bottom-left action key: Biometric or Clear
+                if (onBiometricClick != null) {
+                    PinActionKey(
+                        onClick = onBiometricClick,
+                        contentDescriptionText = "Unlock with biometrics",
+                        enabled = enabled
+                    ) {
+                        Text(
+                            text = "🧬",
+                            fontSize = 20.sp
+                        )
+                    }
+                } else {
+                    PinActionKey(
+                        onClick = { enteredPin = "" },
+                        contentDescriptionText = "Clear all",
+                        enabled = enabled && enteredPin.isNotEmpty()
+                    ) {
+                        Text(
+                            text = "C",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (enteredPin.isNotEmpty() && enabled) OneUiTheme.colors.onSurface else OneUiTheme.colors.onSurfaceMuted.copy(alpha = 0.3f)
+                        )
+                    }
                 }
 
                 PinKey(digit = "0", subLetters = "+", enabled = enabled, onClick = {
@@ -149,7 +162,7 @@ fun PinInput(
                     }
                 })
 
-                // Right action key: Delete
+                // Bottom-right action key: Delete
                 PinActionKey(
                     onClick = {
                         if (enteredPin.isNotEmpty()) {
