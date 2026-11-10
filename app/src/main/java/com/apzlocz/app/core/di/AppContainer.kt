@@ -16,6 +16,8 @@ import com.apzlocz.app.core.security.CryptoEngine
 import com.apzlocz.app.core.security.DefaultCredentialManager
 import com.apzlocz.app.core.security.DefaultLockoutManager
 import com.apzlocz.app.core.security.LockoutManager
+import com.apzlocz.app.service.DefaultLockStateManager
+import com.apzlocz.app.service.LockStateManager
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "apz_locz_preferences")
 
@@ -26,6 +28,7 @@ interface AppContainer {
     val lockoutManager: LockoutManager
     val iconCache: IconCache
     val installedAppsRepository: InstalledAppsRepository
+    val lockStateManager: LockStateManager
 }
 
 class DefaultAppContainer(
@@ -62,5 +65,9 @@ class DefaultAppContainer(
             appScanner = PackageManagerAppScanner(context),
             settingsRepository = settingsRepository
         )
+    }
+
+    override val lockStateManager: LockStateManager by lazy {
+        DefaultLockStateManager()
     }
 }

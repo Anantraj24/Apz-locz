@@ -1,6 +1,14 @@
 # 15 — Changelog
 
 ## [Unreleased]
+- Phase 7: Relock Timing implementation.
+  - Implemented `LockStateManager` (`DefaultLockStateManager`) holding an in-memory `ConcurrentHashMap<String, Long>` mapping unlocked package names to `elapsedRealtime` timestamps with clock injection.
+  - Implemented all 5 relock modes per `docs/02_SRS.md §4` and `FR-04`, `FR-14`: `IMMEDIATELY`, `AFTER_10S`, `AFTER_30S`, `AFTER_1MIN`, and `ON_PHONE_LOCK` with zero background polling, alarms, or Handler loops.
+  - Implemented dynamic `ScreenOffReceiver` listening for `Intent.ACTION_SCREEN_OFF` inside `AppWatcherService` to immediately clear all runtime unlock timestamps on device lock or display sleep.
+  - Enhanced `ForegroundAppFilter` with `isTransientOverlay` and `isAppExit` to prevent spurious relocks during soft keyboard (IME) entry or SystemUI volume adjustments, while reliably triggering exit relocks when navigating Home or switching apps.
+  - Integrated `lockStateManager.recordUnlock(packageName)` into `LockActivity` on successful PIN, password, pattern, and biometric unlock.
+  - Added One UI "Auto Relock Timing" radio option list to `SettingsScreen` with live DataStore persistence.
+  - Added unit test suite `LockStateManagerTest` validating all 5 timing modes, boundary conditions, and screen-off resets.
 - Phase 6: Biometric Unlock implementation.
   - Implemented `BiometricHelper` utilizing `androidx.biometric:biometric:1.1.0` with `BIOMETRIC_STRONG or BIOMETRIC_WEAK` supporting both fingerprint sensors and system face unlock (including Samsung Galaxy S25 FE).
   - Configured prompt with "Use credential" fallback and zero `DEVICE_CREDENTIAL` permission or storage of biometric data.

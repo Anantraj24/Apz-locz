@@ -21,6 +21,32 @@ class ForegroundAppFilter(
             "com.google.android.apps.nexuslauncher",     // Pixel Launcher
             "com.android.launcher3"                      // AOSP Launcher
         )
+
+        private val OVERLAY_SYSTEM_UI = setOf(
+            "com.android.systemui",
+            "com.samsung.android.app.cocktailbarservice"
+        )
+    }
+
+    /**
+     * Identifies transient overlay surfaces (keyboards, system UI dialogs, own lock activity)
+     * that do not represent navigating away from the active application.
+     */
+    fun isTransientOverlay(packageName: String): Boolean {
+        if (packageName == ownPackageName) return true
+        if (OVERLAY_SYSTEM_UI.contains(packageName)) return true
+        if (imePackages.contains(packageName)) return true
+        return false
+    }
+
+    /**
+     * Determines whether the transition from previousPackage to newPackage
+     * represents the user genuinely exiting previousPackage (e.g. going to launcher or switching apps).
+     */
+    fun isAppExit(previousPackage: String, newPackage: String): Boolean {
+        if (previousPackage == newPackage) return false
+        if (isTransientOverlay(newPackage)) return false
+        return true
     }
 
     /**

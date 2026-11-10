@@ -54,6 +54,7 @@ class LockActivity : FragmentActivity() {
         val lockoutManager = container.lockoutManager
         val settingsRepo = container.settingsRepository
         val iconCache = container.iconCache
+        val lockStateManager = container.lockStateManager
 
         val targetAppName = try {
             val appInfo = packageManager.getApplicationInfo(targetPackage, 0)
@@ -87,6 +88,7 @@ class LockActivity : FragmentActivity() {
                         negativeButtonText = "Use credential",
                         onSuccess = {
                             scope.launch {
+                                lockStateManager.recordUnlock(targetPackage)
                                 lockoutManager.recordSuccess()
                                 finish()
                             }
@@ -138,6 +140,7 @@ class LockActivity : FragmentActivity() {
                             isError = false
                             val isCorrect = credentialManager.verifyCredential(secretInput)
                             if (isCorrect) {
+                                lockStateManager.recordUnlock(targetPackage)
                                 lockoutManager.recordSuccess()
                                 finish()
                             } else {

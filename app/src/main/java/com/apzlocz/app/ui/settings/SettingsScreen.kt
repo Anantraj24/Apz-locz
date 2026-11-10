@@ -1,6 +1,7 @@
 package com.apzlocz.app.ui.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.apzlocz.app.core.datastore.CredentialType
+import com.apzlocz.app.core.datastore.RelockMode
 import com.apzlocz.app.ui.components.CollapsingHeaderScaffold
 import com.apzlocz.app.ui.components.OneUiCard
 import com.apzlocz.app.ui.components.OneUiGroupedList
@@ -29,12 +33,14 @@ import com.apzlocz.app.ui.theme.ThemeMode
 @Composable
 fun SettingsScreen(
     currentThemeMode: ThemeMode,
+    currentRelockMode: RelockMode,
     credentialType: CredentialType,
     isCredentialSet: Boolean,
     isBiometricEnabled: Boolean,
     isBiometricSupported: Boolean,
     onNavigateToCredentialSetup: () -> Unit,
     onBiometricToggle: (Boolean) -> Unit,
+    onRelockModeChange: (RelockMode) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -91,6 +97,69 @@ fun SettingsScreen(
                         onCheckedChange = onBiometricToggle,
                         enabled = isBiometricSupported && isCredentialSet
                     )
+                }
+            }
+        }
+
+        // Group 3: Relock Timing (Phase 7)
+        item(key = "section_relock") {
+            OneUiCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 6.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Auto Relock Timing",
+                        style = OneUiTheme.typography.title,
+                        color = OneUiTheme.colors.onSurface
+                    )
+                    Text(
+                        text = "Choose when an unlocked app requires credential entry again.",
+                        style = OneUiTheme.typography.caption,
+                        color = OneUiTheme.colors.onSurfaceMuted
+                    )
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        RelockOptionRow(
+                            label = "Immediately",
+                            description = "Relock as soon as you leave the app",
+                            isSelected = currentRelockMode == RelockMode.IMMEDIATELY,
+                            onClick = { onRelockModeChange(RelockMode.IMMEDIATELY) }
+                        )
+                        RelockOptionRow(
+                            label = "After 10 seconds",
+                            description = "Keep unlocked for 10 seconds",
+                            isSelected = currentRelockMode == RelockMode.AFTER_10S,
+                            onClick = { onRelockModeChange(RelockMode.AFTER_10S) }
+                        )
+                        RelockOptionRow(
+                            label = "After 30 seconds",
+                            description = "Keep unlocked for 30 seconds",
+                            isSelected = currentRelockMode == RelockMode.AFTER_30S,
+                            onClick = { onRelockModeChange(RelockMode.AFTER_30S) }
+                        )
+                        RelockOptionRow(
+                            label = "After 1 minute",
+                            description = "Keep unlocked for 1 minute",
+                            isSelected = currentRelockMode == RelockMode.AFTER_1MIN,
+                            onClick = { onRelockModeChange(RelockMode.AFTER_1MIN) }
+                        )
+                        RelockOptionRow(
+                            label = "When phone locks",
+                            description = "Stay unlocked until the device screen turns off",
+                            isSelected = currentRelockMode == RelockMode.ON_PHONE_LOCK,
+                            onClick = { onRelockModeChange(RelockMode.ON_PHONE_LOCK) }
+                        )
+                    }
                 }
             }
         }
@@ -191,5 +260,60 @@ private fun ThemePill(
             ),
             color = if (isSelected) OneUiTheme.colors.background else OneUiTheme.colors.onSurface
         )
+    }
+}
+
+@Composable
+private fun RelockOptionRow(
+    label: String,
+    description: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = OneUiTheme.typography.body.copy(
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                ),
+                color = if (isSelected) OneUiTheme.colors.accent else OneUiTheme.colors.onSurface
+            )
+            Text(
+                text = description,
+                style = OneUiTheme.typography.caption,
+                color = OneUiTheme.colors.onSurfaceMuted
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .clip(CircleShape)
+                .border(
+                    width = 2.dp,
+                    color = if (isSelected) OneUiTheme.colors.accent else OneUiTheme.colors.surfaceVariant,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(OneUiTheme.colors.accent)
+                )
+            }
+        }
     }
 }

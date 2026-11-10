@@ -73,6 +73,7 @@ class MainActivity : ComponentActivity() {
             val credentialManager = appContainer.credentialManager
             val settings by settingsRepo.settingsFlow.collectAsState(initial = null)
             val themeMode = settings?.themeMode ?: ThemeMode.SYSTEM
+            val relockMode = settings?.relockMode ?: com.apzlocz.app.core.datastore.RelockMode.IMMEDIATELY
 
             val isCredentialSet by credentialManager.isCredentialSetFlow.collectAsState(initial = false)
             val credentialType by credentialManager.credentialTypeFlow.collectAsState(initial = CredentialType.NONE)
@@ -130,6 +131,7 @@ class MainActivity : ComponentActivity() {
                             "settings" -> {
                                 SettingsScreen(
                                     currentThemeMode = themeMode,
+                                    currentRelockMode = relockMode,
                                     credentialType = credentialType,
                                     isCredentialSet = isCredentialSet,
                                     isBiometricEnabled = biometricEnabled,
@@ -137,6 +139,9 @@ class MainActivity : ComponentActivity() {
                                     onNavigateToCredentialSetup = { activeScreen = "credential" },
                                     onBiometricToggle = { enabled ->
                                         scope.launch { settingsRepo.setBiometricEnabled(enabled) }
+                                    },
+                                    onRelockModeChange = { newMode ->
+                                        scope.launch { settingsRepo.setRelockMode(newMode) }
                                     },
                                     onThemeModeChange = { newMode ->
                                         scope.launch { settingsRepo.setThemeMode(newMode) }

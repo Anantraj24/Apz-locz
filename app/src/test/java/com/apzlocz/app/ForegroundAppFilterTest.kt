@@ -81,5 +81,41 @@ class ForegroundAppFilterTest {
         // App B immediately at t = 1050ms (different package) should pass
         assertFalse(filter.shouldDebounce("com.instagram.android", nowMs = 1050L))
     }
+
+    @Test
+    fun testTransientOverlaysAreRecognized() {
+        // Keyboards, SystemUI dialogs, and own lock activity
+        assertTrue(filter.isTransientOverlay("com.samsung.android.honeyboard"))
+        assertTrue(filter.isTransientOverlay("com.google.android.inputmethod.latin"))
+        assertTrue(filter.isTransientOverlay("com.android.systemui"))
+        assertTrue(filter.isTransientOverlay(ownPackage))
+
+        // Normal apps and launchers are not transient overlays
+        assertFalse(filter.isTransientOverlay("com.whatsapp"))
+        assertFalse(filter.isTransientOverlay("com.sec.android.app.launcher"))
+    }
+
+    @Test
+    fun testAppExitDetection() {
+        val app = "com.whatsapp"
+
+        // Same package is not an exit
+        assertFalse(filter.isAppExit(app, app))
+
+        // Keyboard popping up over app is NOT an exit
+        assertFalse(filter.isAppExit(app, "com.samsung.android.honeyboard"))
+
+        // SystemUI (volume slider / notification shade) is NOT an exit
+        assertFalse(filter.isAppExit(app, "com.android.systemui"))
+
+        // Apz Locz lock screen itself is NOT an exit
+        assertFalse(filter.isAppExit(app, ownPackage))
+
+        // Leaving app for Launcher IS an exit
+        assertTrue(filter.isAppExit(app, "com.sec.android.app.launcher"))
+
+        // Switching to another third-party app IS an exit
+        assertTrue(filter.isAppExit(app, "com.instagram.android"))
+    }
 }
 
