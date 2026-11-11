@@ -84,8 +84,12 @@ class MainActivity : ComponentActivity() {
 
             val isConnected by AppWatcherService.isConnected.collectAsState()
             val lastPackage by AppWatcherService.lastDetectedPackage.collectAsState()
+            val hideNotifications = settings?.hideNotifications ?: true
 
             var activeScreen by remember { mutableStateOf("apps") }
+            val isNotificationAccessGranted = remember(activeScreen) {
+                com.apzlocz.app.service.NotificationGuardService.isNotificationAccessGranted(this@MainActivity)
+            }
             val scope = rememberCoroutineScope()
 
             val appsViewModel = remember {
@@ -136,12 +140,20 @@ class MainActivity : ComponentActivity() {
                                     isCredentialSet = isCredentialSet,
                                     isBiometricEnabled = biometricEnabled,
                                     isBiometricSupported = isBiometricSupported,
+                                    hideNotifications = hideNotifications,
+                                    isNotificationAccessGranted = isNotificationAccessGranted,
                                     onNavigateToCredentialSetup = { activeScreen = "credential" },
                                     onBiometricToggle = { enabled ->
                                         scope.launch { settingsRepo.setBiometricEnabled(enabled) }
                                     },
                                     onRelockModeChange = { newMode ->
                                         scope.launch { settingsRepo.setRelockMode(newMode) }
+                                    },
+                                    onHideNotificationsToggle = { enabled ->
+                                        scope.launch { settingsRepo.setHideNotifications(enabled) }
+                                    },
+                                    onGrantNotificationAccess = {
+                                        startActivity(com.apzlocz.app.service.NotificationGuardService.createSettingsIntent())
                                     },
                                     onThemeModeChange = { newMode ->
                                         scope.launch { settingsRepo.setThemeMode(newMode) }

@@ -38,9 +38,13 @@ fun SettingsScreen(
     isCredentialSet: Boolean,
     isBiometricEnabled: Boolean,
     isBiometricSupported: Boolean,
+    hideNotifications: Boolean,
+    isNotificationAccessGranted: Boolean,
     onNavigateToCredentialSetup: () -> Unit,
     onBiometricToggle: (Boolean) -> Unit,
     onRelockModeChange: (RelockMode) -> Unit,
+    onHideNotificationsToggle: (Boolean) -> Unit,
+    onGrantNotificationAccess: () -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -164,7 +168,90 @@ fun SettingsScreen(
             }
         }
 
-        // Group 3: Appearance & Theme
+        // Group 4: Notification Privacy (Phase 8)
+        item(key = "section_notifications") {
+            OneUiCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 6.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Hide Locked App Notifications",
+                                style = OneUiTheme.typography.body.copy(fontWeight = FontWeight.Medium),
+                                color = OneUiTheme.colors.onSurface
+                            )
+                            Text(
+                                text = "Suppress preview content and alerts from locked apps until unlocked",
+                                style = OneUiTheme.typography.caption,
+                                color = OneUiTheme.colors.onSurfaceMuted
+                            )
+                        }
+
+                        OneUiSwitch(
+                            checked = hideNotifications && isNotificationAccessGranted,
+                            onCheckedChange = onHideNotificationsToggle,
+                            enabled = isCredentialSet
+                        )
+                    }
+
+                    if (!isNotificationAccessGranted) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(OneUiTheme.colors.surfaceVariant)
+                                .clickable(onClick = onGrantNotificationAccess)
+                                .padding(12.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Notification Access Required",
+                                        style = OneUiTheme.typography.body.copy(fontWeight = FontWeight.SemiBold),
+                                        color = OneUiTheme.colors.onSurface
+                                    )
+                                    Text(
+                                        text = "Tap here to allow Apz Locz in system settings to hide notifications",
+                                        style = OneUiTheme.typography.caption,
+                                        color = OneUiTheme.colors.onSurfaceMuted
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(OneUiTheme.colors.accent)
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Text(
+                                        text = "Grant",
+                                        style = OneUiTheme.typography.label.copy(fontWeight = FontWeight.Bold),
+                                        color = OneUiTheme.colors.background
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Group 5: Appearance & Theme
         item(key = "section_appearance") {
             OneUiCard(
                 modifier = Modifier

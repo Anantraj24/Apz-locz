@@ -124,3 +124,4 @@ class LockScreenLogicTest {
         assertEquals(CredentialType.NONE, credentialManager.credentialTypeFlow.first())
     }
 }
+

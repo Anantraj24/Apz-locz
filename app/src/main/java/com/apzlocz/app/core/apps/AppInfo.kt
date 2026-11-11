@@ -14,3 +14,4 @@ data class AppInfo(
     val isSystemApp: Boolean,
     val isLocked: Boolean
 )
+

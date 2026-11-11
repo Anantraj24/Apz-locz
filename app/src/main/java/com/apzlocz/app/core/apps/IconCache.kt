@@ -81,3 +81,4 @@ class IconCache(
         return bitmap
     }
 }
+

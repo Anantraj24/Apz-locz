@@ -83,3 +83,4 @@ object BiometricHelper {
         biometricPrompt.authenticate(promptInfo)
     }
 }
+

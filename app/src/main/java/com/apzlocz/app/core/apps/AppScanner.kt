@@ -76,3 +76,4 @@ class PackageManagerAppScanner(
             .distinctBy { it.packageName }
     }
 }
+

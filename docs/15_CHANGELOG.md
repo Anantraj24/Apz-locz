@@ -1,6 +1,12 @@
 # 15 — Changelog
 
 ## [Unreleased]
+- Phase 8: Hide Notifications of Locked Apps implementation.
+  - Implemented `NotificationGuardService` (`NotificationListenerService`) to intercept incoming notifications and dismiss/cancel preview notifications from locked apps (`cancelNotification(sbn.key)`).
+  - Integrated `LockStateManager` check so notifications from locked apps are only suppressed while the app is actively locked (not suppressed if within relock grace period or already unlocked).
+  - Enforced strict privacy rules: zero notification text, title, or body is stored, logged, or transmitted anywhere.
+  - Added One UI "Hide Locked App Notifications" card in `SettingsScreen` with notification listener permission detection and settings shortcut.
+  - Added unit test suite `NotificationGuardTest` verifying decision rules and preference persistence.
 - Phase 7: Relock Timing implementation.
   - Implemented `LockStateManager` (`DefaultLockStateManager`) holding an in-memory `ConcurrentHashMap<String, Long>` mapping unlocked package names to `elapsedRealtime` timestamps with clock injection.
   - Implemented all 5 relock modes per `docs/02_SRS.md §4` and `FR-04`, `FR-14`: `IMMEDIATELY`, `AFTER_10S`, `AFTER_30S`, `AFTER_1MIN`, and `ON_PHONE_LOCK` with zero background polling, alarms, or Handler loops.

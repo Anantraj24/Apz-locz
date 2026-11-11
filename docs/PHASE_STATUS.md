@@ -1,6 +1,6 @@
 # PHASE STATUS
 
-Current phase: **Phase 8 — Hide Notifications** · Last approved phase: **Phase 7 — Relock Timing**
+Current phase: **Phase 9 — Onboarding, Protection & Uninstall Protection** · Last approved phase: **Phase 8 — Hide Notifications**
 
 | # | Phase | Status | Approved by owner |
 |---|---|---|---|
@@ -11,7 +11,7 @@ Current phase: **Phase 8 — Hide Notifications** · Last approved phase: **Phas
 | 5 | Lock Screen & Credential Entry | Approved | Yes |
 | 6 | Biometric Unlock | Approved | Yes |
 | 7 | Relock Timing | Approved | Yes |
-| 8 | Hide Notifications | Not started | No |
+| 8 | Hide Notifications | Approved | Yes |
 | 9 | Onboarding, Protection & Uninstall Protection | Not started | No |
 | 10 | Hardening, QA & Release | Not started | No |
 

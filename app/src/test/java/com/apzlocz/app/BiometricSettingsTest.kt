@@ -48,3 +48,4 @@ class BiometricSettingsTest {
         assertTrue(values.contains(BiometricStatus.UNSUPPORTED))
     }
 }
+

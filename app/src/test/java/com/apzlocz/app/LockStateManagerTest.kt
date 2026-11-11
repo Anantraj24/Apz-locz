@@ -143,3 +143,4 @@ class LockStateManagerTest {
         assertTrue(lockStateManager.isAppLocked(app, RelockMode.ON_PHONE_LOCK))
     }
 }
+
