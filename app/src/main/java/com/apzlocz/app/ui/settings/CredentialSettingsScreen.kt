@@ -21,10 +21,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.apzlocz.app.admin.DeviceAdminHelper
 import com.apzlocz.app.core.datastore.CredentialType
 import com.apzlocz.app.core.security.CredentialManager
 import com.apzlocz.app.lock.PasswordInput
@@ -181,6 +183,7 @@ fun CredentialSettingsScreen(
                             Spacer(modifier = Modifier.height(16.dp))
 
                             // Remove credential option
+                            val context = LocalContext.current
                             PillButton(
                                 text = "Remove Lock Credential",
                                 style = PillButtonStyle.OUTLINED,
@@ -188,7 +191,8 @@ fun CredentialSettingsScreen(
                                     scope.launch {
                                         val result = credentialManager.removeCredential(currentSecretInput)
                                         if (result.isSuccess) {
-                                            successMessage = "Credential removed successfully."
+                                            DeviceAdminHelper.deactivateDeviceAdmin(context)
+                                            successMessage = "Credential removed and uninstall protection deactivated."
                                         } else {
                                             errorMessage = "Failed to remove credential: ${result.exceptionOrNull()?.message}"
                                         }

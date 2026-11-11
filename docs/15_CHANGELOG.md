@@ -1,6 +1,14 @@
 # 15 — Changelog
 
 ## [Unreleased]
+- Phase 9: Onboarding, Protection Status & Uninstall Protection implementation.
+  - Implemented 6-step guided `OnboardingScreen` pager (Welcome, Credential Setup, Biometrics, Accessibility, Notification Access, Samsung Battery Guidance).
+  - Implemented `HomeScreen` featuring One UI Protection Status card (Active Green vs Needs Attention Amber with Fix actions), live locked app counter, relock mode summary, and quick actions.
+  - Added Device Admin receiver `ApzAdminReceiver` with `device_admin.xml` and `DeviceAdminHelper` enabling Android uninstall protection (FR-07).
+  - Wired automatic Device Admin deactivation upon credential removal in `CredentialSettingsScreen`.
+  - Added Samsung Battery optimization guidance and helper (`BatteryHelper`) linking directly to Unrestricted battery settings.
+  - Added application startup lock gating in `MainActivity.onResume` requiring credential verification before accessing Apz Locz management screens once configured.
+  - Added unit test suite `OnboardingProtectionTest` testing onboarding persistence and protection status logic.
 - Phase 8: Hide Notifications of Locked Apps implementation.
   - Implemented `NotificationGuardService` (`NotificationListenerService`) to intercept incoming notifications and dismiss/cancel preview notifications from locked apps (`cancelNotification(sbn.key)`).
   - Integrated `LockStateManager` check so notifications from locked apps are only suppressed while the app is actively locked (not suppressed if within relock grace period or already unlocked).

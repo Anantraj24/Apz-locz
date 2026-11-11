@@ -1,6 +1,6 @@
 # PHASE STATUS
 
-Current phase: **Phase 9 — Onboarding, Protection & Uninstall Protection** · Last approved phase: **Phase 8 — Hide Notifications**
+Current phase: **Phase 10 — Hardening, QA & Release** · Last approved phase: **Phase 9 — Onboarding, Protection & Uninstall Protection**
 
 | # | Phase | Status | Approved by owner |
 |---|---|---|---|
@@ -12,7 +12,7 @@ Current phase: **Phase 9 — Onboarding, Protection & Uninstall Protection** · 
 | 6 | Biometric Unlock | Approved | Yes |
 | 7 | Relock Timing | Approved | Yes |
 | 8 | Hide Notifications | Approved | Yes |
-| 9 | Onboarding, Protection & Uninstall Protection | Not started | No |
+| 9 | Onboarding, Protection & Uninstall Protection | Approved | Yes |
 | 10 | Hardening, QA & Release | Not started | No |
 
 Status values: Not started · In progress · Blocked (needs owner) · Awaiting approval · Approved.

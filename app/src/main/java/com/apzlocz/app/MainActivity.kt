@@ -7,6 +7,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.lifecycleScope
+import com.apzlocz.app.admin.DeviceAdminHelper
+import com.apzlocz.app.core.util.BatteryHelper
+import com.apzlocz.app.lock.LockActivity
+import com.apzlocz.app.ui.home.HomeScreen
+import com.apzlocz.app.ui.onboarding.OnboardingScreen
+import kotlinx.coroutines.flow.first
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,6 +69,34 @@ import kotlinx.coroutines.launch
  * MainActivity hosting the primary screens for Apz Locz.
  */
 class MainActivity : ComponentActivity() {
+
+    override fun onResume() {
+        super.onResume()
+        checkAppLockState()
+    }
+
+    private fun checkAppLockState() {
+        val app = application as? ApzLoczApp ?: return
+        val container = app.container
+        val credentialManager = container.credentialManager
+        val lockStateManager = container.lockStateManager
+        val settingsRepo = container.settingsRepository
+
+        lifecycleScope.launch {
+            val isCredentialSet = credentialManager.isCredentialSetFlow.first()
+            val settings = settingsRepo.settingsFlow.first()
+            if (isCredentialSet && settings.onboardingDone) {
+                if (lockStateManager.isAppLocked(packageName, settings.relockMode)) {
+                    val lockIntent = Intent(this@MainActivity, LockActivity::class.java).apply {
+                        putExtra(LockActivity.EXTRA_PACKAGE_NAME, packageName)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    }
+                    startActivity(lockIntent)
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -85,10 +120,18 @@ class MainActivity : ComponentActivity() {
             val isConnected by AppWatcherService.isConnected.collectAsState()
             val lastPackage by AppWatcherService.lastDetectedPackage.collectAsState()
             val hideNotifications = settings?.hideNotifications ?: true
+            val onboardingDone = settings?.onboardingDone ?: false
+            val lockedPackages = settings?.lockedPackages ?: emptySet()
 
-            var activeScreen by remember { mutableStateOf("apps") }
+            var activeScreen by remember { mutableStateOf("home") }
             val isNotificationAccessGranted = remember(activeScreen) {
                 com.apzlocz.app.service.NotificationGuardService.isNotificationAccessGranted(this@MainActivity)
+            }
+            val isDeviceAdminActive = remember(activeScreen) {
+                com.apzlocz.app.admin.DeviceAdminHelper.isDeviceAdminActive(this@MainActivity)
+            }
+            val isBatteryOptimized = remember(activeScreen) {
+                com.apzlocz.app.core.util.BatteryHelper.isBatteryOptimizationIgnored(this@MainActivity)
             }
             val scope = rememberCoroutineScope()
 
@@ -100,90 +143,154 @@ class MainActivity : ComponentActivity() {
             }
             val appsUiState by appsViewModel.uiState.collectAsState()
 
-            BackHandler(enabled = activeScreen != "apps") {
-                activeScreen = "apps"
+            BackHandler(enabled = activeScreen != "home") {
+                activeScreen = "home"
             }
 
             ApzLoczTheme(themeMode = themeMode) {
-                Scaffold(
-                    bottomBar = {
-                        if (activeScreen == "apps" || activeScreen == "settings" || activeScreen == "gallery") {
-                            BottomNavigationBar(
-                                currentScreen = activeScreen,
-                                onSelectScreen = { activeScreen = it }
-                            )
+                if (!onboardingDone) {
+                    OnboardingScreen(
+                        isCredentialSet = isCredentialSet,
+                        isBiometricsSupported = isBiometricSupported,
+                        isBiometricsEnabled = biometricEnabled,
+                        isAccessibilityGranted = isConnected,
+                        isNotificationAccessGranted = isNotificationAccessGranted,
+                        isBatteryOptimizationIgnored = isBatteryOptimized,
+                        onNavigateToCredentialSetup = { activeScreen = "credential" },
+                        onToggleBiometrics = { enabled ->
+                            scope.launch { settingsRepo.setBiometricEnabled(enabled) }
+                        },
+                        onOpenAccessibilitySettings = {
+                            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            startActivity(intent)
+                        },
+                        onOpenNotificationSettings = {
+                            startActivity(com.apzlocz.app.service.NotificationGuardService.createSettingsIntent())
+                        },
+                        onOpenBatterySettings = {
+                            startActivity(com.apzlocz.app.core.util.BatteryHelper.createRequestIgnoreBatteryOptimizationsIntent(this@MainActivity))
+                        },
+                        onCompleteOnboarding = {
+                            scope.launch { settingsRepo.setOnboardingDone(true) }
+                            activeScreen = "home"
                         }
-                    }
-                ) { paddingValues ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = paddingValues.calculateBottomPadding())
-                    ) {
-                        when (activeScreen) {
-                            "apps" -> {
-                                AppsScreen(
-                                    uiState = appsUiState,
-                                    iconCache = appContainer.iconCache,
-                                    onSearchQueryChange = appsViewModel::onSearchQueryChange,
-                                    onTabSelected = appsViewModel::onTabSelected,
-                                    onToggleLock = appsViewModel::onToggleLock,
-                                    onToggleShowSystemApps = appsViewModel::onToggleShowSystemApps,
-                                    onRefresh = appsViewModel::refresh
+                    )
+                } else {
+                    Scaffold(
+                        bottomBar = {
+                            if (activeScreen == "home" || activeScreen == "apps" || activeScreen == "settings" || activeScreen == "gallery") {
+                                BottomNavigationBar(
+                                    currentScreen = activeScreen,
+                                    onSelectScreen = { activeScreen = it }
                                 )
                             }
-                            "settings" -> {
-                                SettingsScreen(
-                                    currentThemeMode = themeMode,
-                                    currentRelockMode = relockMode,
-                                    credentialType = credentialType,
-                                    isCredentialSet = isCredentialSet,
-                                    isBiometricEnabled = biometricEnabled,
-                                    isBiometricSupported = isBiometricSupported,
-                                    hideNotifications = hideNotifications,
-                                    isNotificationAccessGranted = isNotificationAccessGranted,
-                                    onNavigateToCredentialSetup = { activeScreen = "credential" },
-                                    onBiometricToggle = { enabled ->
-                                        scope.launch { settingsRepo.setBiometricEnabled(enabled) }
-                                    },
-                                    onRelockModeChange = { newMode ->
-                                        scope.launch { settingsRepo.setRelockMode(newMode) }
-                                    },
-                                    onHideNotificationsToggle = { enabled ->
-                                        scope.launch { settingsRepo.setHideNotifications(enabled) }
-                                    },
-                                    onGrantNotificationAccess = {
-                                        startActivity(com.apzlocz.app.service.NotificationGuardService.createSettingsIntent())
-                                    },
-                                    onThemeModeChange = { newMode ->
-                                        scope.launch { settingsRepo.setThemeMode(newMode) }
-                                    },
-                                    onNavigateBack = { activeScreen = "apps" }
-                                )
-                            }
-                            "credential" -> {
-                                CredentialSettingsScreen(
-                                    credentialManager = credentialManager,
-                                    isCredentialCurrentlySet = isCredentialSet,
-                                    currentCredentialType = credentialType,
-                                    onNavigateBack = { activeScreen = "settings" }
-                                )
-                            }
-                            "gallery" -> {
-                                DesignGalleryScreen(
-                                    currentThemeMode = themeMode,
-                                    onThemeModeChange = { newMode ->
-                                        scope.launch { settingsRepo.setThemeMode(newMode) }
-                                    },
-                                    isServiceConnected = isConnected,
-                                    lastDetectedPackage = lastPackage,
-                                    onOpenAccessibilitySettings = {
-                                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
-                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                    ) { paddingValues ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(bottom = paddingValues.calculateBottomPadding())
+                        ) {
+                            when (activeScreen) {
+                                "home" -> {
+                                    HomeScreen(
+                                        isCredentialSet = isCredentialSet,
+                                        isAccessibilityGranted = isConnected,
+                                        isNotificationAccessGranted = isNotificationAccessGranted,
+                                        isBatteryOptimized = isBatteryOptimized,
+                                        isDeviceAdminActive = isDeviceAdminActive,
+                                        lockedAppsCount = lockedPackages.size,
+                                        relockMode = relockMode,
+                                        onNavigateToApps = { activeScreen = "apps" },
+                                        onNavigateToSettings = { activeScreen = "settings" },
+                                        onNavigateToCredentialSetup = { activeScreen = "credential" },
+                                        onOpenAccessibilitySettings = {
+                                            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            }
+                                            startActivity(intent)
+                                        },
+                                        onOpenNotificationSettings = {
+                                            startActivity(com.apzlocz.app.service.NotificationGuardService.createSettingsIntent())
+                                        },
+                                        onOpenBatterySettings = {
+                                            startActivity(com.apzlocz.app.core.util.BatteryHelper.createRequestIgnoreBatteryOptimizationsIntent(this@MainActivity))
+                                        },
+                                        onToggleDeviceAdmin = {
+                                            if (isDeviceAdminActive) {
+                                                com.apzlocz.app.admin.DeviceAdminHelper.deactivateDeviceAdmin(this@MainActivity)
+                                            } else {
+                                                startActivity(com.apzlocz.app.admin.DeviceAdminHelper.createEnableAdminIntent(this@MainActivity))
+                                            }
                                         }
-                                        startActivity(intent)
-                                    }
-                                )
+                                    )
+                                }
+                                "apps" -> {
+                                    AppsScreen(
+                                        uiState = appsUiState,
+                                        iconCache = appContainer.iconCache,
+                                        onSearchQueryChange = appsViewModel::onSearchQueryChange,
+                                        onTabSelected = appsViewModel::onTabSelected,
+                                        onToggleLock = appsViewModel::onToggleLock,
+                                        onToggleShowSystemApps = appsViewModel::onToggleShowSystemApps,
+                                        onRefresh = appsViewModel::refresh
+                                    )
+                                }
+                                "settings" -> {
+                                    SettingsScreen(
+                                        currentThemeMode = themeMode,
+                                        currentRelockMode = relockMode,
+                                        credentialType = credentialType,
+                                        isCredentialSet = isCredentialSet,
+                                        isBiometricEnabled = biometricEnabled,
+                                        isBiometricSupported = isBiometricSupported,
+                                        hideNotifications = hideNotifications,
+                                        isNotificationAccessGranted = isNotificationAccessGranted,
+                                        onNavigateToCredentialSetup = { activeScreen = "credential" },
+                                        onBiometricToggle = { enabled ->
+                                            scope.launch { settingsRepo.setBiometricEnabled(enabled) }
+                                        },
+                                        onRelockModeChange = { newMode ->
+                                            scope.launch { settingsRepo.setRelockMode(newMode) }
+                                        },
+                                        onHideNotificationsToggle = { enabled ->
+                                            scope.launch { settingsRepo.setHideNotifications(enabled) }
+                                        },
+                                        onGrantNotificationAccess = {
+                                            startActivity(com.apzlocz.app.service.NotificationGuardService.createSettingsIntent())
+                                        },
+                                        onThemeModeChange = { newMode ->
+                                            scope.launch { settingsRepo.setThemeMode(newMode) }
+                                        },
+                                        onNavigateBack = { activeScreen = "home" }
+                                    )
+                                }
+                                "credential" -> {
+                                    CredentialSettingsScreen(
+                                        credentialManager = credentialManager,
+                                        isCredentialCurrentlySet = isCredentialSet,
+                                        currentCredentialType = credentialType,
+                                        onNavigateBack = { activeScreen = "settings" }
+                                    )
+                                }
+                                "gallery" -> {
+                                    DesignGalleryScreen(
+                                        currentThemeMode = themeMode,
+                                        onThemeModeChange = { newMode ->
+                                            scope.launch { settingsRepo.setThemeMode(newMode) }
+                                        },
+                                        isServiceConnected = isConnected,
+                                        lastDetectedPackage = lastPackage,
+                                        onOpenAccessibilitySettings = {
+                                            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            }
+                                            startActivity(intent)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -210,6 +317,12 @@ private fun BottomNavigationBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            NavTabPill(
+                title = "Home",
+                isSelected = currentScreen == "home",
+                onClick = { onSelectScreen("home") },
+                modifier = Modifier.weight(1f)
+            )
             NavTabPill(
                 title = "Apps",
                 isSelected = currentScreen == "apps",
