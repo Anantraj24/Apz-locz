@@ -1,6 +1,6 @@
 # PHASE STATUS
 
-Current phase: **Phase 10 — Hardening, QA & Release** · Last approved phase: **Phase 9 — Onboarding, Protection & Uninstall Protection**
+Current phase: **Complete (v1.0.0 Released)** · Last approved phase: **Phase 10 — Hardening, QA & Release**
 
 | # | Phase | Status | Approved by owner |
 |---|---|---|---|
@@ -13,7 +13,7 @@ Current phase: **Phase 10 — Hardening, QA & Release** · Last approved phase: 
 | 7 | Relock Timing | Approved | Yes |
 | 8 | Hide Notifications | Approved | Yes |
 | 9 | Onboarding, Protection & Uninstall Protection | Approved | Yes |
-| 10 | Hardening, QA & Release | Not started | No |
+| 10 | Hardening, QA & Release | Approved | Yes |
 
 Status values: Not started · In progress · Blocked (needs owner) · Awaiting approval · Approved.
 Agents update this file at the end of each phase with a link to the completion report.

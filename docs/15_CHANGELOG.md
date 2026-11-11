@@ -1,6 +1,13 @@
 # 15 — Changelog
 
-## [Unreleased]
+## [1.0.0] - 2026-11-11
+- Phase 10: Hardening, QA & Release.
+  - Completed full regression of Acceptance Criteria AC-01 through AC-19 across all 10 project phases.
+  - Added monochrome themed icon support (`<monochrome>`) for Android 13+ / One UI dynamic themed icons.
+  - Configured R8 ProGuard rules, resource shrinking, and debug signing fallback in `app/build.gradle.kts`.
+  - Achieved optimized production release APK size under 2 MB (~1.96 MB).
+  - Updated CI workflow in `.github/workflows/build.yml` to build debug + release APKs and archive release artifacts.
+  - Comprehensive documentation overhaul in `README.md` (features, permissions, Samsung battery setup, offline privacy model, limitations).
 - Phase 9: Onboarding, Protection Status & Uninstall Protection implementation.
   - Implemented 6-step guided `OnboardingScreen` pager (Welcome, Credential Setup, Biometrics, Accessibility, Notification Access, Samsung Battery Guidance).
   - Implemented `HomeScreen` featuring One UI Protection Status card (Active Green vs Needs Attention Amber with Fix actions), live locked app counter, relock mode summary, and quick actions.

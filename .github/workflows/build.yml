@@ -30,6 +30,9 @@ jobs:
     - name: Build Debug APK
       run: ./gradlew assembleDebug
 
+    - name: Build Optimized Release APK
+      run: ./gradlew assembleRelease
+
     - name: Verify Merged Manifest (No INTERNET Permission)
       run: |
         if grep -q "android.permission.INTERNET" app/build/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml; then
@@ -38,4 +41,10 @@ jobs:
         else
           echo "Verified: Manifest contains zero network permissions."
         fi
+
+    - name: Upload Release APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: apz-locz-release-apk
+        path: app/build/outputs/apk/release/app-release.apk
 
