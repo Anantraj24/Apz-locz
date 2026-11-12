@@ -142,5 +142,31 @@ class LockStateManagerTest {
         lockStateManager.clearAll()
         assertTrue(lockStateManager.isAppLocked(app, RelockMode.ON_PHONE_LOCK))
     }
+
+    @Test
+    fun testSelfLock_ImmediatelyRelocksOnAppExit() {
+        val ownPackage = "com.apzlocz.app"
+        lockStateManager.recordUnlock(ownPackage)
+        assertFalse(lockStateManager.isAppLocked(ownPackage, RelockMode.IMMEDIATELY))
+
+        // When MainActivity onStop triggers onPackageExited with IMMEDIATELY
+        lockStateManager.onPackageExited(ownPackage, RelockMode.IMMEDIATELY)
+        assertTrue(lockStateManager.isAppLocked(ownPackage, RelockMode.IMMEDIATELY))
+    }
+
+    @Test
+    fun testSelfLock_GracePeriodSurvivesAppExitUntilExpiration() {
+        val ownPackage = "com.apzlocz.app"
+        lockStateManager.recordUnlock(ownPackage)
+        assertFalse(lockStateManager.isAppLocked(ownPackage, RelockMode.AFTER_10S))
+
+        // Exiting the app under timed relock mode preserves the grace period
+        lockStateManager.onPackageExited(ownPackage, RelockMode.AFTER_10S)
+        assertFalse(lockStateManager.isAppLocked(ownPackage, RelockMode.AFTER_10S))
+
+        // Expire the 10s timer
+        currentTime += 10_001L
+        assertTrue(lockStateManager.isAppLocked(ownPackage, RelockMode.AFTER_10S))
+    }
 }
 

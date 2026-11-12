@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apzlocz.app.core.datastore.CredentialType
+import com.apzlocz.app.core.datastore.RelockMode
 import com.apzlocz.app.service.AppWatcherService
 import com.apzlocz.app.ui.apps.AppsScreen
 import com.apzlocz.app.ui.apps.AppsViewModel
@@ -70,9 +71,28 @@ import kotlinx.coroutines.launch
  */
 class MainActivity : ComponentActivity() {
 
+    private var cachedRelockMode: RelockMode = RelockMode.IMMEDIATELY
+
+    override fun onStart() {
+        super.onStart()
+        val app = application as? ApzLoczApp ?: return
+        val settingsRepo = app.container.settingsRepository
+        lifecycleScope.launch {
+            settingsRepo.settingsFlow.collect { settings ->
+                cachedRelockMode = settings.relockMode
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         checkAppLockState()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val app = application as? ApzLoczApp ?: return
+        app.container.lockStateManager.onPackageExited(packageName, cachedRelockMode)
     }
 
     private fun checkAppLockState() {
@@ -148,7 +168,13 @@ class MainActivity : ComponentActivity() {
             }
 
             ApzLoczTheme(themeMode = themeMode) {
-                if (!onboardingDone) {
+                if (settings == null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(OneUiTheme.colors.background)
+                    )
+                } else if (!onboardingDone) {
                     OnboardingScreen(
                         isCredentialSet = isCredentialSet,
                         isBiometricsSupported = isBiometricSupported,
