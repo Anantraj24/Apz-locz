@@ -34,6 +34,7 @@ data class AppSettings(
     val credentialIvBase64: String? = null,
     val failedAttempts: Int = 0,
     val lockoutUntil: Long = 0L,
+    val pinLength: Int = 4,
     val onboardingDone: Boolean = false,
     val schemaVersion: Int = 1
 )

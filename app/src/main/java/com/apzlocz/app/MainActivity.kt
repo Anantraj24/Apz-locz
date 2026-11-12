@@ -298,6 +298,8 @@ class MainActivity : ComponentActivity() {
                                         credentialManager = credentialManager,
                                         isCredentialCurrentlySet = isCredentialSet,
                                         currentCredentialType = credentialType,
+                                        settingsRepository = settingsRepo,
+                                        currentPinLength = settings?.pinLength ?: 4,
                                         onNavigateBack = { activeScreen = "settings" }
                                     )
                                 }

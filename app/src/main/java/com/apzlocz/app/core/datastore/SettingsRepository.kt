@@ -29,6 +29,7 @@ interface SettingsRepository {
         ivBase64: String?
     )
     suspend fun clearCredential()
+    suspend fun setPinLength(length: Int)
     suspend fun updateLockoutState(failedAttempts: Int, lockoutUntil: Long)
     suspend fun resetLockoutState()
 }
@@ -139,6 +140,12 @@ class DataStoreSettingsRepository(
         }
     }
 
+    override suspend fun setPinLength(length: Int) {
+        dataStore.edit { preferences ->
+            preferences[SettingsKeys.PIN_LENGTH] = length
+        }
+    }
+
     override suspend fun updateLockoutState(failedAttempts: Int, lockoutUntil: Long) {
         dataStore.edit { preferences ->
             preferences[SettingsKeys.FAILED_ATTEMPTS] = failedAttempts
@@ -185,6 +192,7 @@ class DataStoreSettingsRepository(
             credentialIvBase64 = preferences[SettingsKeys.CREDENTIAL_IV],
             failedAttempts = preferences[SettingsKeys.FAILED_ATTEMPTS] ?: 0,
             lockoutUntil = preferences[SettingsKeys.LOCKOUT_UNTIL] ?: 0L,
+            pinLength = preferences[SettingsKeys.PIN_LENGTH] ?: 4,
             onboardingDone = preferences[SettingsKeys.ONBOARDING_DONE] ?: false,
             schemaVersion = preferences[SettingsKeys.SCHEMA_VERSION] ?: 1
         )

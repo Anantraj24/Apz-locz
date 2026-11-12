@@ -22,6 +22,7 @@ object SettingsKeys {
     val CREDENTIAL_IV = stringPreferencesKey("credential_iv")
     val FAILED_ATTEMPTS = intPreferencesKey("failed_attempts")
     val LOCKOUT_UNTIL = longPreferencesKey("lockout_until")
+    val PIN_LENGTH = intPreferencesKey("pin_length")
     val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
     val SCHEMA_VERSION = intPreferencesKey("schema_version")
 }

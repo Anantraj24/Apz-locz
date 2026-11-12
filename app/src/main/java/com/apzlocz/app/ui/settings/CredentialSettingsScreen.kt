@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apzlocz.app.admin.DeviceAdminHelper
 import com.apzlocz.app.core.datastore.CredentialType
+import com.apzlocz.app.core.datastore.SettingsRepository
 import com.apzlocz.app.core.security.CredentialManager
 import com.apzlocz.app.lock.PasswordInput
 import com.apzlocz.app.lock.PatternInput
@@ -52,12 +54,15 @@ fun CredentialSettingsScreen(
     isCredentialCurrentlySet: Boolean,
     currentCredentialType: CredentialType,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    settingsRepository: SettingsRepository? = null,
+    currentPinLength: Int = 4
 ) {
     var step by remember {
         mutableStateOf(if (isCredentialCurrentlySet) SetupStep.VERIFY_CURRENT else SetupStep.CHOOSE_TYPE)
     }
     var selectedType by remember { mutableStateOf(CredentialType.PIN) }
+    var selectedPinLength by remember { mutableIntStateOf(currentPinLength.coerceIn(4, 8)) }
     var currentSecretInput by remember { mutableStateOf("") }
     var newSecretInput by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
@@ -122,7 +127,7 @@ fun CredentialSettingsScreen(
                             when (currentCredentialType) {
                                 CredentialType.PIN -> {
                                     PinInput(
-                                        pinLength = 4,
+                                        pinLength = currentPinLength,
                                         isError = isError,
                                         onPinComplete = { input ->
                                             scope.launch {
@@ -232,7 +237,30 @@ fun CredentialSettingsScreen(
                                 )
                             }
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                            if (selectedType == CredentialType.PIN) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "PIN length: $selectedPinLength digits",
+                                    style = OneUiTheme.typography.body.copy(fontWeight = FontWeight.SemiBold),
+                                    color = OneUiTheme.colors.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    for (len in 4..8) {
+                                        CredentialTypePill(
+                                            label = "$len",
+                                            isSelected = selectedPinLength == len,
+                                            onClick = { selectedPinLength = len },
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
 
                             PillButton(
                                 text = "Continue",
@@ -255,7 +283,7 @@ fun CredentialSettingsScreen(
                             when (selectedType) {
                                 CredentialType.PIN -> {
                                     PinInput(
-                                        pinLength = 4,
+                                        pinLength = selectedPinLength,
                                         isError = isError,
                                         onPinComplete = { input ->
                                             newSecretInput = input
@@ -300,11 +328,11 @@ fun CredentialSettingsScreen(
                             when (selectedType) {
                                 CredentialType.PIN -> {
                                     PinInput(
-                                        pinLength = 4,
+                                        pinLength = selectedPinLength,
                                         isError = isError,
                                         onPinComplete = { input ->
                                             if (input == newSecretInput) {
-                                                saveNewCredential(scope, credentialManager, isCredentialCurrentlySet, currentSecretInput, selectedType, input) {
+                                                saveNewCredential(scope, credentialManager, settingsRepository, isCredentialCurrentlySet, currentSecretInput, selectedType, input) {
                                                     successMessage = "New credential saved successfully!"
                                                 }
                                             } else {
@@ -319,7 +347,7 @@ fun CredentialSettingsScreen(
                                         isError = isError,
                                         onPasswordSubmit = { input ->
                                             if (input == newSecretInput) {
-                                                saveNewCredential(scope, credentialManager, isCredentialCurrentlySet, currentSecretInput, selectedType, input) {
+                                                saveNewCredential(scope, credentialManager, settingsRepository, isCredentialCurrentlySet, currentSecretInput, selectedType, input) {
                                                     successMessage = "New password saved successfully!"
                                                 }
                                             } else {
@@ -334,7 +362,7 @@ fun CredentialSettingsScreen(
                                         isError = isError,
                                         onPatternComplete = { input ->
                                             if (input == newSecretInput) {
-                                                saveNewCredential(scope, credentialManager, isCredentialCurrentlySet, currentSecretInput, selectedType, input) {
+                                                saveNewCredential(scope, credentialManager, settingsRepository, isCredentialCurrentlySet, currentSecretInput, selectedType, input) {
                                                     successMessage = "New pattern saved successfully!"
                                                 }
                                             } else {
@@ -373,6 +401,7 @@ fun CredentialSettingsScreen(
 private fun saveNewCredential(
     scope: kotlinx.coroutines.CoroutineScope,
     credentialManager: CredentialManager,
+    settingsRepository: SettingsRepository?,
     isAlreadySet: Boolean,
     currentSecret: String,
     newType: CredentialType,
@@ -386,6 +415,9 @@ private fun saveNewCredential(
             credentialManager.setCredential(newType, newSecret)
         }
         if (result.isSuccess) {
+            if (newType == CredentialType.PIN) {
+                settingsRepository?.setPinLength(newSecret.length)
+            }
             onSuccess()
         }
     }

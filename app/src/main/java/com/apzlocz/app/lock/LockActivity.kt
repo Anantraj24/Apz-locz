@@ -131,6 +131,7 @@ class LockActivity : FragmentActivity() {
                     packageName = targetPackage,
                     appName = targetAppName,
                     credentialType = credentialType,
+                    pinLength = settings?.pinLength ?: 4,
                     lockoutState = lockoutState,
                     isError = isError,
                     isBiometricAvailable = isBiometricAvailable && biometricEnabled,

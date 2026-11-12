@@ -93,6 +93,10 @@ class FakeSettingsRepository(
         }
     }
 
+    override suspend fun setPinLength(length: Int) {
+        _settings.update { it.copy(pinLength = length) }
+    }
+
     override suspend fun updateLockoutState(failedAttempts: Int, lockoutUntil: Long) {
         _settings.update {
             it.copy(failedAttempts = failedAttempts, lockoutUntil = lockoutUntil)

@@ -57,10 +57,13 @@ fun PinDots(
         }
     }
 
+    val dotSpacing = if (pinLength > 6) 10.dp else 16.dp
+    val dotSize = if (pinLength > 6) 14.dp else 16.dp
+
     Row(
         modifier = modifier
             .offset { IntOffset(shakeOffset.value.roundToInt(), 0) },
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(dotSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
         for (i in 0 until pinLength) {
@@ -77,7 +80,7 @@ fun PinDots(
 
             Box(
                 modifier = Modifier
-                    .size(16.dp)
+                    .size(dotSize)
                     .background(color = dotColor, shape = CircleShape)
             )
         }

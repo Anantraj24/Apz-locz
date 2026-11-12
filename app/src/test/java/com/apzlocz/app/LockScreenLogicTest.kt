@@ -61,6 +61,28 @@ class LockScreenLogicTest {
     }
 
     @Test
+    fun test6DigitPinUnlockFlowAndSettingsStorage() = runTest {
+        val setResult = credentialManager.setCredential(CredentialType.PIN, "123456")
+        assertTrue(setResult.isSuccess)
+        fakeRepository.setPinLength(6)
+
+        assertEquals(6, fakeRepository.settingsFlow.first().pinLength)
+        assertFalse(credentialManager.verifyCredential("123455"))
+        assertTrue(credentialManager.verifyCredential("123456"))
+    }
+
+    @Test
+    fun test8DigitPinUnlockFlowAndSettingsStorage() = runTest {
+        val setResult = credentialManager.setCredential(CredentialType.PIN, "87654321")
+        assertTrue(setResult.isSuccess)
+        fakeRepository.setPinLength(8)
+
+        assertEquals(8, fakeRepository.settingsFlow.first().pinLength)
+        assertFalse(credentialManager.verifyCredential("87654320"))
+        assertTrue(credentialManager.verifyCredential("87654321"))
+    }
+
+    @Test
     fun testPasswordUnlockFlow() = runTest {
         val setResult = credentialManager.setCredential(CredentialType.PASSWORD, "SecretPass123!")
         assertTrue(setResult.isSuccess)

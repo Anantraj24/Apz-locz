@@ -35,8 +35,9 @@ fun LockScreen(
     isBiometricAvailable: Boolean,
     iconCache: IconCache,
     onCredentialSubmit: (String) -> Unit,
-    onBiometricTrigger: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    pinLength: Int = 4,
+    onBiometricTrigger: (() -> Unit)? = null
 ) {
     Box(
         modifier = modifier
@@ -102,7 +103,7 @@ fun LockScreen(
                 when (credentialType) {
                     CredentialType.PIN -> {
                         PinInput(
-                            pinLength = 4,
+                            pinLength = pinLength,
                             onPinComplete = onCredentialSubmit,
                             isError = isError,
                             enabled = inputEnabled,

@@ -24,18 +24,28 @@ import com.apzlocz.app.ui.theme.OneUiTheme
 
 @Composable
 fun PinInput(
-    pinLength: Int = 4,
     onPinComplete: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    pinLength: Int = 4,
     isError: Boolean = false,
     enabled: Boolean = true,
-    onBiometricClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    onBiometricClick: (() -> Unit)? = null
 ) {
     var enteredPin by remember { mutableStateOf("") }
 
     val currentIsError = isError
     if (currentIsError && enteredPin.isNotEmpty()) {
         enteredPin = ""
+    }
+
+    fun appendDigit(digit: String) {
+        if (enteredPin.length < pinLength) {
+            val next = enteredPin + digit
+            enteredPin = next
+            if (next.length == pinLength) {
+                onPinComplete(next)
+            }
+        }
     }
 
     Column(
@@ -55,75 +65,21 @@ fun PinInput(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                PinKey(digit = "1", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "1"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
-                PinKey(digit = "2", subLetters = "ABC", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "2"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
-                PinKey(digit = "3", subLetters = "DEF", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "3"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
+                PinKey(digit = "1", enabled = enabled, onClick = { appendDigit("1") })
+                PinKey(digit = "2", subLetters = "ABC", enabled = enabled, onClick = { appendDigit("2") })
+                PinKey(digit = "3", subLetters = "DEF", enabled = enabled, onClick = { appendDigit("3") })
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                PinKey(digit = "4", subLetters = "GHI", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "4"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
-                PinKey(digit = "5", subLetters = "JKL", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "5"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
-                PinKey(digit = "6", subLetters = "MNO", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "6"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
+                PinKey(digit = "4", subLetters = "GHI", enabled = enabled, onClick = { appendDigit("4") })
+                PinKey(digit = "5", subLetters = "JKL", enabled = enabled, onClick = { appendDigit("5") })
+                PinKey(digit = "6", subLetters = "MNO", enabled = enabled, onClick = { appendDigit("6") })
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                PinKey(digit = "7", subLetters = "PQRS", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "7"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
-                PinKey(digit = "8", subLetters = "TUV", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "8"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
-                PinKey(digit = "9", subLetters = "WXYZ", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "9"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
+                PinKey(digit = "7", subLetters = "PQRS", enabled = enabled, onClick = { appendDigit("7") })
+                PinKey(digit = "8", subLetters = "TUV", enabled = enabled, onClick = { appendDigit("8") })
+                PinKey(digit = "9", subLetters = "WXYZ", enabled = enabled, onClick = { appendDigit("9") })
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
@@ -154,13 +110,7 @@ fun PinInput(
                     }
                 }
 
-                PinKey(digit = "0", subLetters = "+", enabled = enabled, onClick = {
-                    if (enteredPin.length < pinLength) {
-                        val next = enteredPin + "0"
-                        enteredPin = next
-                        if (next.length == pinLength) onPinComplete(next)
-                    }
-                })
+                PinKey(digit = "0", subLetters = "+", enabled = enabled, onClick = { appendDigit("0") })
 
                 // Bottom-right action key: Delete
                 PinActionKey(
