@@ -1,5 +1,18 @@
 # 15 — Changelog
 
+## [1.0.1] - 2026-11-12
+- Quality Audit & Anti-Vibe-Code Polish (Stages 0 & 1):
+  - F-01 (P0): Implemented `MainActivity.onStop()` hook notifying `LockStateManager.onPackageExited(packageName, cachedRelockMode)` to guarantee immediate self-relock on app switch; cached relock mode in `onStart()`; eliminated cold-start flicker with background-tinted initial surface.
+  - F-02 (P1): Added support for user-configurable PIN lengths between 4 and 8 digits (`KEY_PIN_LENGTH` in Datastore, One UI length pill selector in `CredentialSettingsScreen`, dynamic adaptive dot rendering in `PinDots`).
+  - F-03 (P1): Eliminated active polling loop in `LockActivity.kt`; coroutine timer now keys exclusively on `lockoutState.isLockedOut` (zero idle polling).
+  - F-04 (P1): Removed temporary Phase 1 `DesignGalleryScreen` and "Gallery" bottom navigation tab from production `MainActivity.kt`.
+  - F-05 (P1): Replaced `.offset(x = thumbOffset)` with lambda `.offset { IntOffset(thumbOffset.roundToPx(), 0) }` in `OneUiSwitch.kt` to prevent layout recomposition overhead during switch animation.
+  - F-08 (P2): Standardized spacing to One UI design tokens (`OneUiTheme.spacing.lg` and `OneUiTheme.spacing.md`) in `HomeScreen.kt` and `OnboardingScreen.kt`.
+  - F-09 (P2): Conformed Composable parameter signatures in `PinInput.kt`, `PasswordInput.kt`, `PatternInput.kt`, and `LockScreen.kt` to standard Compose API guidelines (`modifier: Modifier = Modifier` first among optional parameters).
+  - F-10 (P2): Removed redundant `Build.VERSION_CODES.M` check in `AppWatcherService.kt:queryLauncherPackages()`; moved `res/mipmap-anydpi-v26` to `res/mipmap-anydpi` resolving `ObsoleteSdkInt`; removed unused gallery strings from `res/values/strings.xml`.
+  - F-11 (P3): Guarded all 11 `Log.d` statements across `AppWatcherService.kt`, `NotificationGuardService.kt`, `ScreenOffReceiver.kt`, and `ApzAdminReceiver.kt` with `if (BuildConfig.DEBUG)`.
+  - F-12 (P3): Updated `docs/00_PROJECT_OVERVIEW.md` marking O14 confirmed as offline Safe Mode recovery, updated `docs/14_ACCEPTANCE_CRITERIA.md` with explicit JVM vs physical device verification columns, and updated `docs/AUDIT_REPORT.md`.
+
 ## [1.0.0] - 2026-11-11
 - Phase 10: Hardening, QA & Release.
   - Completed full regression of Acceptance Criteria AC-01 through AC-19 across all 10 project phases.

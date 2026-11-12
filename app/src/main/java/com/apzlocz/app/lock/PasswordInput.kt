@@ -44,9 +44,9 @@ import kotlin.math.roundToInt
 @Composable
 fun PasswordInput(
     onPasswordSubmit: (String) -> Unit,
+    modifier: Modifier = Modifier,
     isError: Boolean = false,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    enabled: Boolean = true
 ) {
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }

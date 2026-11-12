@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.apzlocz.app.BuildConfig
 
 /**
  * DeviceAdminReceiver enabling uninstall protection per docs/00_PROJECT_OVERVIEW.md FR-07.
@@ -22,11 +23,15 @@ class ApzAdminReceiver : DeviceAdminReceiver() {
 
     override fun onEnabled(context: Context, intent: Intent) {
         super.onEnabled(context, intent)
-        Log.d(TAG, "Device Admin enabled for Apz Locz uninstall protection.")
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Device Admin enabled for Apz Locz uninstall protection.")
+        }
     }
 
     override fun onDisabled(context: Context, intent: Intent) {
         super.onDisabled(context, intent)
-        Log.d(TAG, "Device Admin disabled for Apz Locz.")
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Device Admin disabled for Apz Locz.")
+        }
     }
 }

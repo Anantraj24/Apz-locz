@@ -8,6 +8,7 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import com.apzlocz.app.ApzLoczApp
+import com.apzlocz.app.BuildConfig
 import com.apzlocz.app.core.datastore.RelockMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +61,9 @@ class NotificationGuardService : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         _isConnected.value = true
-        Log.d(TAG, "NotificationGuardService connected.")
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "NotificationGuardService connected.")
+        }
 
         val app = application as? ApzLoczApp
         val container = app?.container
@@ -80,7 +83,9 @@ class NotificationGuardService : NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         _isConnected.value = false
-        Log.d(TAG, "NotificationGuardService disconnected.")
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "NotificationGuardService disconnected.")
+        }
         super.onListenerDisconnected()
     }
 
@@ -110,7 +115,9 @@ class NotificationGuardService : NotificationListenerService() {
             try {
                 // Cancel notification to hide sensitive message contents from status bar / shade
                 cancelNotification(sbn.key)
-                Log.d(TAG, "Hidden notification from locked app: $pkgName")
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Hidden notification from locked app: $pkgName")
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to cancel notification for $pkgName: ${e.message}")
             }

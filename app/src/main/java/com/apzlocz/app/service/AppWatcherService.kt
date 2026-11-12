@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import com.apzlocz.app.ApzLoczApp
+import com.apzlocz.app.BuildConfig
 import com.apzlocz.app.core.datastore.RelockMode
 import com.apzlocz.app.lock.LockActivity
 import kotlinx.coroutines.CoroutineScope
@@ -71,7 +72,9 @@ class AppWatcherService : AccessibilityService() {
                 settingsRepo.settingsFlow.collect { settings ->
                     lockedPackages = settings.lockedPackages
                     currentRelockMode = settings.relockMode
-                    Log.d(TAG, "Settings updated: ${lockedPackages.size} locked apps, relockMode=$currentRelockMode")
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Settings updated: ${lockedPackages.size} locked apps, relockMode=$currentRelockMode")
+                    }
                 }
             }
         }
@@ -84,7 +87,9 @@ class AppWatcherService : AccessibilityService() {
         val filter = IntentFilter(Intent.ACTION_SCREEN_OFF)
         registerReceiver(receiver, filter)
 
-        Log.d(TAG, "AppWatcherService connected and ScreenOffReceiver registered.")
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "AppWatcherService connected and ScreenOffReceiver registered.")
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -119,7 +124,9 @@ class AppWatcherService : AccessibilityService() {
         // Check if the application is still within its relock grace period
         val manager = lockStateManager
         if (manager != null && !manager.isAppLocked(currentPackage, currentRelockMode)) {
-            Log.d(TAG, "App $currentPackage is within relock grace period ($currentRelockMode). Skipping lock screen.")
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "App $currentPackage is within relock grace period ($currentRelockMode). Skipping lock screen.")
+            }
             return
         }
 
@@ -129,7 +136,9 @@ class AppWatcherService : AccessibilityService() {
         }
 
         _lastDetectedPackage.value = currentPackage
-        Log.d(TAG, "Locked app detected in foreground: $currentPackage at $now. Launching LockActivity.")
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Locked app detected in foreground: $currentPackage at $now. Launching LockActivity.")
+        }
 
         try {
             val lockIntent = Intent(this, LockActivity::class.java).apply {
@@ -143,7 +152,9 @@ class AppWatcherService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        Log.d(TAG, "AppWatcherService interrupted.")
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "AppWatcherService interrupted.")
+        }
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -168,12 +179,10 @@ class AppWatcherService : AccessibilityService() {
         val launcherIntent = Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_HOME)
         }
-        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val resolveInfoList = packageManager.queryIntentActivities(
+            launcherIntent,
             PackageManager.MATCH_DEFAULT_ONLY
-        } else {
-            0
-        }
-        val resolveInfoList = packageManager.queryIntentActivities(launcherIntent, flags)
+        )
         return resolveInfoList.mapNotNull { it.activityInfo?.packageName }.toSet()
     }
 

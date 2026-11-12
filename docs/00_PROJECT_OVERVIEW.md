@@ -65,7 +65,7 @@ Kotlin, Jetpack Compose, single module, MVVM, DataStore, AccessibilityService de
 | O11 | Test devices | Only the S25 FE; claims for other devices must say "untested" |
 | O12 | Overlay (`SYSTEM_ALERT_WINDOW`) to avoid flash of the locked app | Add only if measured flash is visible |
 | O13 | Exact uninstall-block mechanism and how to protect the admin-deactivation screen (may need `canRetrieveWindowContent`) | Device Admin active only while a credential is set; deactivated automatically when the credential is removed |
-| O14 | Forgotten credential recovery (offline app + uninstall block can lock the owner out) | **No recovery designed. Needs owner decision before Phase 9.** |
+| O14 | Forgotten credential recovery (offline app + uninstall block can lock the owner out) | Offline-only model: Zero cloud/remote recovery. Recovery via Android Safe Mode boot (disables 3rd-party accessibility/admin, allowing clean app data reset). Confirmed in Phase 10. |
 | O15 | Default for "hide notifications" toggle (on or off) | On |
 
 ## 5. Deferred (NOT in v1, never implement without approval)

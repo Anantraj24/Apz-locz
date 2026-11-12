@@ -65,8 +65,8 @@ fun HomeScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                        .padding(OneUiTheme.spacing.lg),
+                    verticalArrangement = Arrangement.spacedBy(OneUiTheme.spacing.md)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),

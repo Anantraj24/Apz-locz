@@ -1,6 +1,6 @@
 # PHASE STATUS
 
-Current phase: **Complete (v1.0.0 Released)** · Last approved phase: **Phase 10 — Hardening, QA & Release**
+Current phase: **Complete (v1.0.1 Polished & Built)** · Last approved phase: **Premium Polish Audit (Stage 1 Completed)**
 
 | # | Phase | Status | Approved by owner |
 |---|---|---|---|
@@ -14,6 +14,7 @@ Current phase: **Complete (v1.0.0 Released)** · Last approved phase: **Phase 10
 | 8 | Hide Notifications | Approved | Yes |
 | 9 | Onboarding, Protection & Uninstall Protection | Approved | Yes |
 | 10 | Hardening, QA & Release | Approved | Yes |
+| 11 | Premium Polish Audit & Hardening | Complete | Awaiting approval |
 
 Status values: Not started · In progress · Blocked (needs owner) · Awaiting approval · Approved.
 Agents update this file at the end of each phase with a link to the completion report.

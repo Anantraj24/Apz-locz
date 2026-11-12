@@ -33,10 +33,10 @@ import kotlin.math.roundToInt
 @Composable
 fun PatternInput(
     onPatternComplete: (String) -> Unit,
+    modifier: Modifier = Modifier,
     isError: Boolean = false,
     enabled: Boolean = true,
-    gridSizeDp: Int = 300,
-    modifier: Modifier = Modifier
+    gridSizeDp: Int = 300
 ) {
     val selectedDots = remember { mutableStateListOf<Int>() }
     var currentTouchPoint by remember { mutableStateOf<Offset?>(null) }

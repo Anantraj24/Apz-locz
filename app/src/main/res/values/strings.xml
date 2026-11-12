@@ -2,7 +2,5 @@
 <resources>
     <string name="app_name">Apz Locz</string>
     <string name="accessibility_service_description">Apz Locz uses accessibility services solely to detect when locked apps are opened so that the lock screen can be displayed. No personal data or screen content is inspected, stored, or transmitted.</string>
-    <string name="design_gallery_title">Design Gallery</string>
-    <string name="design_gallery_subtitle">Samsung One UI Inspired Component Library</string>
 </resources>
 

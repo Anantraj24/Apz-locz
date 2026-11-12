@@ -67,7 +67,7 @@ fun OnboardingScreen(
             .background(OneUiTheme.colors.background)
             .statusBarsPadding()
             .navigationBarsPadding()
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding(horizontal = OneUiTheme.spacing.xl, vertical = OneUiTheme.spacing.md)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -77,7 +77,7 @@ fun OnboardingScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp),
+                    .padding(vertical = OneUiTheme.spacing.sm),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {

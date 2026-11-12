@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.apzlocz.app.BuildConfig
 
 /**
  * Dynamically registered BroadcastReceiver for Intent.ACTION_SCREEN_OFF.
@@ -20,7 +21,9 @@ class ScreenOffReceiver(
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Intent.ACTION_SCREEN_OFF) {
-            Log.d(TAG, "Screen off event detected. Resetting all in-memory unlock states.")
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Screen off event detected. Resetting all in-memory unlock states.")
+            }
             onScreenOffCallback()
         }
     }

@@ -72,6 +72,10 @@ class LockActivity : FragmentActivity() {
             var lockoutState by remember {
                 mutableStateOf(LockoutState(isLockedOut = false, remainingSeconds = 0, failedAttempts = 0))
             }
+
+            LaunchedEffect(Unit) {
+                lockoutState = lockoutManager.getLockoutState()
+            }
             var isError by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
 
@@ -113,15 +117,13 @@ class LockActivity : FragmentActivity() {
                 }
             }
 
-            // Lockout countdown timer
-            LaunchedEffect(Unit) {
-                while (true) {
+            // Lockout countdown timer (active strictly when locked out; zero idle polling)
+            LaunchedEffect(lockoutState.isLockedOut) {
+                while (lockoutState.isLockedOut) {
                     val state = lockoutManager.getLockoutState()
                     lockoutState = state
                     if (state.isLockedOut) {
                         delay(1000L)
-                    } else {
-                        delay(3000L)
                     }
                 }
             }
